@@ -21,7 +21,8 @@ class MyHome extends StatefulWidget {
 }
 
 class _MyHomeState extends State<MyHome> {
-  var myValues = [false, false, false, false, false];
+  List<bool> myValues = [false, false, false, false, false];
+  List<int> prayerValues = [0, 0, 0, 0, 0];
 
   bool showPrayers = false;
 
@@ -58,8 +59,6 @@ class _MyHomeState extends State<MyHome> {
     );
   }
 
-  bool myOwnVal = false;
-
   CheckboxListTile myListTile(String title, int hisVal, {fontsize = 22.0}) {
     return CheckboxListTile(
       activeColor: Colors.white,
@@ -87,11 +86,11 @@ class _MyHomeState extends State<MyHome> {
       subtitle: showPrayers
           ? Column(
               children: <Widget>[
-                thePrayer(),
-                thePrayer(),
-                thePrayer(),
-                thePrayer(),
-                thePrayer(),
+                thePrayer(0),
+                thePrayer(1),
+                thePrayer(2),
+                thePrayer(3),
+                thePrayer(4),
               ],
             )
           : null,
@@ -110,23 +109,31 @@ class _MyHomeState extends State<MyHome> {
     );
   }
 
-  thePrayer() {
+  thePrayer(int thisPrayer) {
     return ListTile(
       title: Text('Fajr'),
       trailing: Row(
         children: <Widget>[
-          Radio(
-            value: 1,
-            groupValue: 1,
-            onChanged: (v) {},
-          ),
           Text('جماعة'),
           Radio(
-            value: 0,
-            groupValue: 1,
-            onChanged: (v) {},
+            value: 28,
+            groupValue: prayerValues[thisPrayer],
+            onChanged: (v) {
+              setState(() {
+                prayerValues[thisPrayer] = v;
+              });
+            },
           ),
           Text('فذ'),
+          Radio(
+            value: 1,
+            groupValue: prayerValues[thisPrayer],
+            onChanged: (v) {
+              setState(() {
+                prayerValues[thisPrayer] = v;
+              });
+            },
+          ),
         ],
         mainAxisSize: MainAxisSize.min,
       ),
