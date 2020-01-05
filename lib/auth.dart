@@ -83,6 +83,7 @@ class FireStoring {
 
 //shouldn't call send uless getCurrentUser is called in auth otherwise it will crash
   send(String mymsg) {
+    //no need here
     ++lastId;
     _myFireStore
         .collection(_pathToMsgs)
@@ -98,7 +99,7 @@ class FireStoring {
 
   static createPrivateChat(String hisId) {
     //remove from here
-
+//needed in this app
     String doc = '$_myId + $hisId';
     _myFireStore
         .collection('OneToOneChats')
