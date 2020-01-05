@@ -1,0 +1,135 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Werd',
+      theme: ThemeData(),
+      home: MyHome(),
+    );
+  }
+}
+
+class MyHome extends StatefulWidget {
+  @override
+  _MyHomeState createState() => _MyHomeState();
+}
+
+class _MyHomeState extends State<MyHome> {
+  var myValues = [false, false, false, false, false];
+
+  bool showPrayers = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xff092257),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Day 1',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Container(
+        padding: EdgeInsets.only(top: 20),
+        //margin: EdgeInsets.only(top: 80),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topRight: Radius.circular(120)),
+        ),
+        child: ListView(
+          children: <Widget>[
+            prayerListTile(),
+            myListTile('ورد القرآن', 1),
+            myListTile('قيام الليل', 2),
+            myListTile('أذكار الصباح', 3),
+            myListTile('أذكار المساء', 4),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool myOwnVal = false;
+
+  CheckboxListTile myListTile(String title, int hisVal, {fontsize = 22.0}) {
+    return CheckboxListTile(
+      activeColor: Colors.white,
+      checkColor: Colors.green,
+      selected: myValues[hisVal],
+      onChanged: (val) {
+        setState(() {
+          myValues[hisVal] = val;
+        });
+      },
+      value: myValues[hisVal],
+      subtitle: Text(
+        'very Important',
+        style: TextStyle(color: Colors.indigo, fontSize: 12),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(color: Colors.indigo, fontSize: fontsize),
+      ),
+    );
+  }
+
+  ListTile prayerListTile() {
+    return ListTile(
+      subtitle: showPrayers
+          ? Column(
+              children: <Widget>[
+                thePrayer(),
+                thePrayer(),
+                thePrayer(),
+                thePrayer(),
+                thePrayer(),
+              ],
+            )
+          : null,
+      onTap: () {
+        setState(() {
+          if (showPrayers)
+            showPrayers = false;
+          else
+            showPrayers = true;
+        });
+      },
+      title: Text(
+        'الصلاة',
+        style: TextStyle(color: Colors.indigo, fontSize: 22),
+      ),
+    );
+  }
+
+  thePrayer() {
+    return ListTile(
+      title: Text('Fajr'),
+      trailing: Row(
+        children: <Widget>[
+          Radio(
+            value: 1,
+            groupValue: 1,
+            onChanged: (v) {},
+          ),
+          Text('جماعة'),
+          Radio(
+            value: 0,
+            groupValue: 1,
+            onChanged: (v) {},
+          ),
+          Text('فذ'),
+        ],
+        mainAxisSize: MainAxisSize.min,
+      ),
+    );
+  }
+}
