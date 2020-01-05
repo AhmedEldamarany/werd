@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:werd/Screens/loginScreen.dart';
 import 'package:werd/auth.dart';
-import 'package:werd/main.dart';
-import 'loginScreen.dart';
 
 class RootPage extends StatefulWidget {
   final Auth auth;
