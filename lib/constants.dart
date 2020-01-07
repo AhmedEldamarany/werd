@@ -29,11 +29,11 @@ class CustomeTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 5, right: 3),
-      child: TextFormField(
+      child: TextField(
         keyboardType: keyboardType ?? TextInputType.emailAddress,
         //style: TextStyle(fontSize: 18),
         obscureText: obscure ?? false,
-        onSaved: onSaved,
+        onChanged: onSaved,
         decoration: InputDecoration(
           hintText: hintText,
           labelText: labelText,

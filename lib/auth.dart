@@ -21,7 +21,7 @@ class Auth {
       updateInfo.displayName = userName;
       result.user.updateProfile(updateInfo);
     } catch (e, s) {
-      print('auth says : $s');
+      print('auth says : $e');
       return false;
     }
   }

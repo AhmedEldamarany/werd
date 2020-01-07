@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'Screens/loginScreen.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -10,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Werd',
       theme: ThemeData(),
-      home: MyHome(),
+      home: LoginScreen(),
     );
   }
 }
