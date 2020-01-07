@@ -20,11 +20,10 @@ enum FormType { signIn, signUp }
 class _LoginScreenState extends State<LoginScreen> {
   bool spin = false;
 
-  String email, password;
+  String email, password, confirmedPassword;
   FormType _formType = FormType.signIn;
 
-  //what is this ???ظظظ
-
+//TODO handle the signing exceptions
   void validateAndSubmit() async {
     setState(() {
       spin = true;
@@ -39,19 +38,20 @@ class _LoginScreenState extends State<LoginScreen> {
         } else
           print('Can\'t log In');
       } else {
-        result = await Auth.signMeUp(
-          email: email,
-          password: password,
-        );
-        if (result) {
-          Navigator.pushNamed(context, '/friends');
-        } else
-          print('Can\'t log up');
+        if (password == confirmedPassword) {
+          result = await Auth.signMeUp(
+            email: email,
+            password: password,
+          );
+          if (result) {
+            Navigator.pushNamed(context, '/friends');
+          } else
+            print('Can\'t log up');
+        }
+        setState(() {
+          spin = false;
+        });
       }
-      setState(() {
-        spin = false;
-      });
-
       widget.signedIn();
     } catch (e) {
       print('logins says : $e');
@@ -145,6 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
           hintText: 'Password',
           labelText: 'Confirm Password',
           obscure: true,
+          onSaved: (value) {
+            confirmedPassword = value;
+          },
         ),
       ],
     );

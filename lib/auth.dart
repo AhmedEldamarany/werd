@@ -4,26 +4,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Auth {
-  static String _myEmail;
   static final _myAuth = FirebaseAuth.instance;
   static AuthResult result;
-  static FirebaseUser user;
+  static FirebaseUser _user;
 
 //TODO result is always NOT NULL which makes it useless [somehow] user result.user instead
 
-  static signMeUp(
-      {String email, String password, String pfpurl, String userName}) async {
+  static Future<bool> signMeUp({String email, String password}) async {
     try {
       result = await _myAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      UserUpdateInfo updateInfo;
-      updateInfo.photoUrl = pfpurl;
-      updateInfo.displayName = userName;
-      result.user.updateProfile(updateInfo);
     } catch (e, s) {
-      print('auth says : $e');
+      print('auth says : $e ANNNDDD $s');
       return false;
     }
+    return true;
   }
 
   static Future<bool> signMeIn(String email, String password) async {
@@ -39,25 +34,13 @@ class Auth {
 
   static getCurrentUser() async {
     try {
-      user = await _myAuth.currentUser();
-      if (user != null) {
-        _myEmail = user.email;
-
-        return user;
+      _user = await _myAuth.currentUser();
+      if (_user != null) {
+        return _user.uid;
       }
     } catch (e) {
-      print(e);
       return null;
     }
-  }
-
-  static myUserId() async {
-    if (user == null) await getCurrentUser();
-    return user.uid;
-  }
-
-  static getUserId(FirebaseUser user) async {
-    return user.uid;
   }
 
   static Future<void> signOut() async {
@@ -67,7 +50,6 @@ class Auth {
 
 class FireStoring {
   //region fields
-  static int lastId = -1;
   static Firestore _myFireStore = Firestore.instance;
   static String _pathToMsgs = '/oneToOneChats/vjm1dLfdDrBLsWT0dVix/messages';
   static String _myId = '';
@@ -82,12 +64,22 @@ class FireStoring {
   pathTomsg() {}
 
 //shouldn't call send uless getCurrentUser is called in auth otherwise it will crash
-  send(String mymsg) {
-    //no need here
-    ++lastId;
-    _myFireStore
-        .collection(_pathToMsgs)
-        .add({'number': lastId, 'sender': Auth.myUserId(), 'text': mymsg});
+  send(List<int> prayers) {
+    for (int j = 0; j < prayers.length; j++) {
+      int i = prayers[j];
+      _myFireStore
+          .collection('UserId')
+          .document('prayers')
+          .setData({'$j': i}, merge: true);
+    }
+  }
+
+  sendAgain(List<bool> prayers) {
+    for (int j = 0; j < prayers.length; j++) {
+      bool i = prayers[j];
+      _myFireStore.collection('UserId')
+        ..document('werds').setData({'$j is': i}, merge: true);
+    }
   }
 
   subscribe() async {
@@ -111,7 +103,6 @@ class FireStoring {
   }
 
   static Future<String> myId() async {
-    _myId = Auth.myUserId();
 //    final users = await _myFireStore.collection('AllUsers').getDocuments();
 //    for (var doc in users.documents) {
 //      if (doc.data['name'] == 'ahmed Alla') {
@@ -122,8 +113,8 @@ class FireStoring {
 //    return null;
   }
 
-  static Stream chatRoomStream(String room) {
-    return _myFireStore.collection(room).orderBy('number').snapshots();
+  static Stream chatRoomStream() {
+    return _myFireStore.collection('UserId').snapshots();
   }
 
 //endregion
