@@ -8,17 +8,21 @@ class RootPage extends StatefulWidget {
   RootPage({this.auth});
 
   @override
-  State<StatefulWidget> createState() => new RootPageState();
+  State<StatefulWidget> createState() => new RootPageState(auth);
 }
 
 enum AuthStatus { out, In }
 
 class RootPageState extends State<RootPage> {
+  final Auth auth;
+
+  RootPageState(this.auth);
+
   AuthStatus _authStatus = AuthStatus.out;
 
   initState() {
     super.initState();
-    Auth.getCurrentUser().then((userId) {
+    auth.getCurrentUser().then((userId) {
       setState(() {
         _authStatus = userId == null ? AuthStatus.out : AuthStatus.In;
       });
@@ -41,7 +45,7 @@ class RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     switch (_authStatus) {
       case AuthStatus.out:
-        return LoginScreen(auth: widget.auth, signedIn: signedIn);
+        return LoginScreen(auth: auth, signedIn: signedIn);
       case AuthStatus.In:
 //        return MyApp(
 //          auth: widget.auth,

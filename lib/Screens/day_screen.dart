@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:werd/auth.dart';
+import 'package:werd/firestroing.dart';
 
+//todo do I need stateful ?
 class Day extends StatefulWidget {
   @override
   _DayState createState() => _DayState();
@@ -10,13 +11,24 @@ class Day extends StatefulWidget {
 class _DayState extends State<Day> {
   List<bool> myValues = [false, false, false, false];
   List<int> prayerValues = [0, 0, 0, 0, 0];
-
+  FireStoring firestoring = new FireStoring();
   bool showPrayers = false;
+  final myColor = Color(0xff092257);
+  int dayPoints = 0;
+
+  void endTheDay() {
+    dayPoints = 0;
+    for (int i in prayerValues)
+      dayPoints += i;
+    for (bool j in myValues)
+      if (j) dayPoints++;
+    print(dayPoints);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff092257),
+      backgroundColor: myColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -34,11 +46,13 @@ class _DayState extends State<Day> {
           borderRadius: BorderRadius.only(topRight: Radius.circular(120)),
         ),
         child: StreamBuilder<QuerySnapshot>(
-          stream: FireStoring.chatRoomStream(),
+          stream: firestoring.chatRoomStream(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData)
+            if (!snapshot.hasData) {
+              firestoring.sendAgain(myValues);
+              firestoring.send(prayerValues);
               return Text('hi');
-            else {
+            } else {
               var data = snapshot.data.documents;
               for (var smallData in data) {
                 if (smallData.documentID == 'prayers')
@@ -63,17 +77,10 @@ class _DayState extends State<Day> {
           },
         ),
       ),
-      bottomSheet: RaisedButton(
-        color: Colors.blue,
-        onPressed: () {
-          FireStoring().send(this.prayerValues);
-          FireStoring().sendAgain(this.myValues);
-        },
-      ),
     );
   }
 
-  CheckboxListTile myListTile(String title, int hisVal, {fontsize = 22.0}) {
+  CheckboxListTile myListTile(String title, int hisVal, {fontSize = 22.0}) {
     return CheckboxListTile(
       activeColor: Colors.white,
       checkColor: Colors.green,
@@ -81,6 +88,7 @@ class _DayState extends State<Day> {
       onChanged: (val) {
         setState(() {
           myValues[hisVal] = val;
+          firestoring.sendAgain(this.myValues);
         });
       },
       value: myValues[hisVal],
@@ -90,7 +98,7 @@ class _DayState extends State<Day> {
       ),
       title: Text(
         title,
-        style: TextStyle(color: Colors.indigo, fontSize: fontsize),
+        style: TextStyle(color: Colors.indigo, fontSize: fontSize),
       ),
     );
   }
@@ -100,11 +108,11 @@ class _DayState extends State<Day> {
       subtitle: showPrayers
           ? Column(
               children: <Widget>[
-                thePrayer(0),
-                thePrayer(1),
-                thePrayer(2),
-                thePrayer(3),
-                thePrayer(4),
+                prayerTile(0),
+                prayerTile(1),
+                prayerTile(2),
+                prayerTile(3),
+                prayerTile(4),
               ],
             )
           : null,
@@ -123,7 +131,7 @@ class _DayState extends State<Day> {
     );
   }
 
-  thePrayer(int thisPrayer) {
+  prayerTile(int thisPrayer) {
     return ListTile(
       title: Text('Fajr'),
       trailing: Row(
@@ -135,6 +143,7 @@ class _DayState extends State<Day> {
             onChanged: (v) {
               setState(() {
                 prayerValues[thisPrayer] = v;
+                firestoring.send(this.prayerValues);
               });
             },
           ),
@@ -145,6 +154,7 @@ class _DayState extends State<Day> {
             onChanged: (v) {
               setState(() {
                 prayerValues[thisPrayer] = v;
+                firestoring.send(this.prayerValues);
               });
             },
           ),
