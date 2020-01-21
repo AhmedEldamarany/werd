@@ -10,10 +10,10 @@ class FireStoring {
   String doc;
   int today;
   static Auth myAuth = Auth();
-  DateTime mydate = DateTime.now();
+  DateTime myDate = DateTime.now();
 
   FireStoring() {
-    today = mydate.weekday;
+    today = myDate.weekday;
     _pathToDay = '/UserId/Week/$today';
   }
 
@@ -22,7 +22,7 @@ class FireStoring {
 //region  Methods
 //todo implement the Auth object
 //shouldn't call send unless getCurrentUser is called in auth otherwise it will crash
-  send(List<int> prayers) {
+  updatePrayers(List<int> prayers) {
     for (int j = 0; j < prayers.length; j++) {
       int i = prayers[j];
       _myFireStore
@@ -32,7 +32,7 @@ class FireStoring {
     }
   }
 
-  sendAgain(List<bool> prayers) {
+  updateWerds(List<bool> prayers) {
     for (int j = 0; j < prayers.length; j++) {
       bool i = prayers[j];
       _myFireStore
@@ -40,6 +40,13 @@ class FireStoring {
           .document('werds')
           .setData({'$j is': i}, merge: true);
     }
+  }
+
+  void setDayTotale(int dayTotal) async {
+    await _myFireStore
+        .collection(_pathToDay)
+        .document('dayTotal')
+        .setData({'DayTotal': dayTotal});
   }
 
 //  subscribe() async {

@@ -9,7 +9,7 @@ class Day extends StatefulWidget {
 }
 
 class _DayState extends State<Day> {
-  List<bool> myValues = [false, false, false, false];
+  List<bool> werdValues = [false, false, false, false];
   List<int> prayerValues = [0, 0, 0, 0, 0];
   FireStoring firestoring = new FireStoring();
   bool showPrayers = false;
@@ -20,9 +20,9 @@ class _DayState extends State<Day> {
     dayPoints = 0;
     for (int i in prayerValues)
       dayPoints += i;
-    for (bool j in myValues)
+    for (bool j in werdValues)
       if (j) dayPoints++;
-    print(dayPoints);
+    firestoring.setDayTotale(dayPoints);
   }
 
   @override
@@ -49,8 +49,8 @@ class _DayState extends State<Day> {
           stream: firestoring.chatRoomStream(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              firestoring.sendAgain(myValues);
-              firestoring.send(prayerValues);
+              firestoring.updateWerds(werdValues);
+              firestoring.updatePrayers(prayerValues);
               return Text('hi');
             } else {
               var data = snapshot.data.documents;
@@ -60,10 +60,13 @@ class _DayState extends State<Day> {
                     prayerValues[i] = smallData.data['$i'];
                   }
                 else if (smallData.documentID == 'werds')
-                  for (int i = 0; i < myValues.length; i++) {
-                    myValues[i] = smallData.data['$i is'];
+                  for (int i = 0; i < werdValues.length; i++) {
+                    werdValues[i] = smallData.data['$i is'];
                   }
+                else
+                  dayPoints = smallData.data[0];
               }
+              endTheDay();
               return ListView(
                 children: <Widget>[
                   prayerListTile(),
@@ -71,6 +74,12 @@ class _DayState extends State<Day> {
                   myListTile('قيام الليل', 1),
                   myListTile('أذكار الصباح', 2),
                   myListTile('أذكار المساء', 3),
+                  ListTile(
+                    title: Text(
+                      'Total   $dayPoints',
+                      style: TextStyle(color: Colors.indigo, fontSize: 22),
+                    ),
+                  ),
                 ],
               );
             }
@@ -84,14 +93,14 @@ class _DayState extends State<Day> {
     return CheckboxListTile(
       activeColor: Colors.white,
       checkColor: Colors.green,
-      selected: myValues[hisVal],
+      selected: werdValues[hisVal],
       onChanged: (val) {
         setState(() {
-          myValues[hisVal] = val;
-          firestoring.sendAgain(this.myValues);
+          werdValues[hisVal] = val;
+          firestoring.updateWerds(this.werdValues);
         });
       },
-      value: myValues[hisVal],
+      value: werdValues[hisVal],
       subtitle: Text(
         'very Important',
         style: TextStyle(color: Colors.indigo, fontSize: 12),
@@ -143,7 +152,7 @@ class _DayState extends State<Day> {
             onChanged: (v) {
               setState(() {
                 prayerValues[thisPrayer] = v;
-                firestoring.send(this.prayerValues);
+                firestoring.updatePrayers(this.prayerValues);
               });
             },
           ),
@@ -154,7 +163,7 @@ class _DayState extends State<Day> {
             onChanged: (v) {
               setState(() {
                 prayerValues[thisPrayer] = v;
-                firestoring.send(this.prayerValues);
+                firestoring.updatePrayers(this.prayerValues);
               });
             },
           ),
