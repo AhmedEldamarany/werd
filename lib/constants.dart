@@ -8,6 +8,7 @@ const List<Color> KmyColors = [
   Color(0xFFaacfe2),
   Color(0xFFd7dcde),
 ];
+final myColor = Color(0xff092257);
 
 //Todo needs a controller
 class CustomeTextField extends StatelessWidget {

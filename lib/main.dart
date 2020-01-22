@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:werd/Screens/weekly_report.dart';
 
 import 'Screens/day_screen.dart';
 
@@ -12,8 +13,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Werd',
       theme: ThemeData(),
-      initialRoute: '/Day',
-      routes: {'/Day': (context) => Day()},
+      initialRoute: '/Week',
+      routes: {'/Day': (context) => Day(), '/Week': (context) => WeekReport()},
     );
   }
 }

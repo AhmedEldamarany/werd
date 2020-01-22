@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:werd/firestroing.dart';
 
+import '../constants.dart';
+
 //todo do I need stateful ?
 class Day extends StatefulWidget {
   @override
@@ -13,7 +15,6 @@ class _DayState extends State<Day> {
   List<int> prayerValues = [0, 0, 0, 0, 0];
   FireStoring firestoring = new FireStoring();
   bool showPrayers = false;
-  final myColor = Color(0xff092257);
   int dayPoints = 0;
 
   void endTheDay() {
@@ -46,12 +47,12 @@ class _DayState extends State<Day> {
           borderRadius: BorderRadius.only(topRight: Radius.circular(120)),
         ),
         child: StreamBuilder<QuerySnapshot>(
-          stream: firestoring.chatRoomStream(),
+          stream: firestoring.dayStream(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               firestoring.updateWerds(werdValues);
               firestoring.updatePrayers(prayerValues);
-              return Text('hi');
+              return Text('hi'); //Todo return loading thing
             } else {
               var data = snapshot.data.documents;
               for (var smallData in data) {

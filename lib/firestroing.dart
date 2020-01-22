@@ -6,6 +6,7 @@ class FireStoring {
   //region fields
   static Firestore _myFireStore = Firestore.instance;
   String _pathToDay;
+  String _pathToWeek;
   static String gn_myId = '';
   String doc;
   int today;
@@ -15,6 +16,7 @@ class FireStoring {
   FireStoring() {
     today = myDate.weekday;
     _pathToDay = '/UserId/Week/$today';
+    _pathToWeek = '/UserId';
   }
 
 //endregion
@@ -49,40 +51,13 @@ class FireStoring {
         .setData({'DayTotal': dayTotal});
   }
 
-//  subscribe() async {
-//    await for (var snapshot
-//        in _myFireStore.collection(_pathToMsgs).snapshots()) {
-//      for (var message in snapshot.documents) {}
-//    }
-//  }
-
-//  createPrivateChat(String hisId) {
-//    //remove from here
-////needed in this app
-//    String doc = '$_myId + $hisId';
-//    _myFireStore
-//        .collection('OneToOneChats')
-//        .document(doc)
-//        .setData({'user1': _myId, 'user2': hisId});
-//
-//    //to be moved to send
-////    _pathToMsgs = 'OneToOneChats/$doc/messages';
-//  }
-
-  Future<String> myId() async {
-//    final users = await _myFireStore.collection('AllUsers').getDocuments();
-//    for (var doc in users.documents) {
-//      if (doc.data['name'] == 'ahmed Alla') {
-//        _myDocumentId = doc.documentID;
-//        return _myDocumentId;
-//      }
-//    }
-//    return null;
-  }
-
-  Stream<QuerySnapshot> chatRoomStream() {
+  Stream<QuerySnapshot> dayStream() {
     return _myFireStore.collection(_pathToDay).snapshots();
   }
 
+  Stream<QuerySnapshot> weekStream() {
+    _myFireStore.document().snapshots();
+    return _myFireStore.collection(_pathToWeek).snapshots();
+  }
 //endregion
 }
