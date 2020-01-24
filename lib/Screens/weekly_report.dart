@@ -14,13 +14,19 @@ class WeekReport extends StatelessWidget {
               if (!snapshot.hasData)
                 return Text('wait');
               else {
-                int myAvg;
+                double myAvg;
                 var data = snapshot.data.documents;
                 for (var smallData in data) {
                   myAvg = smallData.data['avg'];
                 }
+                fireStoring.setWeekAverage();
                 return ListView(
-                  children: <Widget>[Text('$myAvg')],
+                  children: <Widget>[
+                    Text(
+                      '$myAvg',
+                      style: TextStyle(color: Colors.red, fontSize: 33),
+                    )
+                  ],
                 );
               }
             },

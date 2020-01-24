@@ -7,8 +7,10 @@ class FireStoring {
   static Firestore _myFireStore = Firestore.instance;
   String _pathToDay;
   String _pathToWeek;
-  static String gn_myId = '';
-  String doc;
+  String dbWeek = 'Week';
+  String dbdayTotal = 'dayTotal';
+  String dbPrayers = 'prayers';
+  String dbWerds = 'werds';
   int today;
   static Auth myAuth = Auth();
   DateTime myDate = DateTime.now();
@@ -29,7 +31,7 @@ class FireStoring {
       int i = prayers[j];
       _myFireStore
           .collection(_pathToDay)
-          .document('prayers')
+          .document(dbPrayers)
           .setData({'$j': i}, merge: true);
     }
   }
@@ -39,7 +41,7 @@ class FireStoring {
       bool i = prayers[j];
       _myFireStore
           .collection(_pathToDay)
-          .document('werds')
+          .document(dbPrayers)
           .setData({'$j is': i}, merge: true);
     }
   }
@@ -47,8 +49,41 @@ class FireStoring {
   void setDayTotale(int dayTotal) async {
     await _myFireStore
         .collection(_pathToDay)
-        .document('dayTotal')
-        .setData({'DayTotal': dayTotal});
+        .document(dbdayTotal)
+        .setData({dbdayTotal: dayTotal});
+  }
+
+  void setWeekAverage() async {
+    double myAvg = await _calculateWeekAvg();
+    _myFireStore
+        .collection(_pathToWeek)
+        .document(dbWeek)
+        .setData({'avg': myAvg});
+  }
+
+  Future<double> _calculateWeekAvg() async {
+    int n = 0;
+    int sum = 0;
+
+    for (int i = 1; i <= 7; i++) {
+      try {
+        DocumentSnapshot snapshot = await _myFireStore
+            .collection(_pathToWeek)
+            .document('Week')
+            .collection('$i')
+            .document(dbdayTotal)
+            .get();
+        int shit = snapshot.data[dbdayTotal];
+        print('$shit in $i n is $n');
+        if (shit != 0) {
+          n++;
+          sum += shit;
+        }
+      } catch (e) {
+        print('errors lol in $i n is $n ');
+      }
+    }
+    return sum / n;
   }
 
   Stream<QuerySnapshot> dayStream() {
@@ -56,7 +91,6 @@ class FireStoring {
   }
 
   Stream<QuerySnapshot> weekStream() {
-    _myFireStore.document().snapshots();
     return _myFireStore.collection(_pathToWeek).snapshots();
   }
 //endregion
