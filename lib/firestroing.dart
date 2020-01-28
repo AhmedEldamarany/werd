@@ -29,7 +29,8 @@ class FireStoring {
 
 //region  Methods
 //todo implement the Auth object
-//shouldn't call send unless getCurrentUser is called in auth otherwise it will crash
+//shouldn't call send unless getCurrentUser is called in
+// auth otherwise it will crash
   updatePrayers(List<int> prayers) {
     for (int j = 0; j < prayers.length; j++) {
       int i = prayers[j];
@@ -95,7 +96,10 @@ class FireStoring {
   }
 
   Stream<QuerySnapshot> weekStream() {
-    return _myFireStore.collection(_pathToWeeklyAvg).snapshots();
+    return _myFireStore
+        .collection(_pathToWeeklyAvg)
+        .orderBy('avg', descending: true)
+        .snapshots();
   }
 //endregion
 }

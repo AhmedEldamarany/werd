@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:werd/Screens/weekly_report.dart';
 import 'package:werd/firestroing.dart';
 
 import '../constants.dart';
@@ -39,53 +40,59 @@ class _DayState extends State<Day> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.only(top: 20),
-        //margin: EdgeInsets.only(top: 80),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(topRight: Radius.circular(120)),
-        ),
-        child: StreamBuilder<QuerySnapshot>(
-          stream: firestoring.dayStream(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              firestoring.updateWerds(werdValues);
-              firestoring.updatePrayers(prayerValues);
-              return Text('hi'); //Todo return loading thing
-            } else {
-              var data = snapshot.data.documents;
-              for (var smallData in data) {
-                if (smallData.documentID == 'prayers')
-                  for (int i = 0; i < prayerValues.length; i++) {
-                    prayerValues[i] = smallData.data['$i'];
-                  }
-                else if (smallData.documentID == 'werds')
-                  for (int i = 0; i < werdValues.length; i++) {
-                    werdValues[i] = smallData.data['$i is'];
-                  }
-                else
-                  dayPoints = smallData.data[0];
-              }
-              endTheDay();
-              return ListView(
-                children: <Widget>[
-                  prayerListTile(),
-                  myListTile('ورد القرآن', 0),
-                  myListTile('قيام الليل', 1),
-                  myListTile('أذكار الصباح', 2),
-                  myListTile('أذكار المساء', 3),
-                  ListTile(
-                    title: Text(
-                      'Total   $dayPoints',
-                      style: TextStyle(color: Colors.indigo, fontSize: 22),
-                    ),
-                  ),
-                ],
-              );
+      body: PageView(
+        children: <Widget>[pageOne(), WeekReport()],
+      ),
+    );
+  }
+
+  Container pageOne() {
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      //margin: EdgeInsets.only(top: 80),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(120)),
+      ),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: firestoring.dayStream(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            firestoring.updateWerds(werdValues);
+            firestoring.updatePrayers(prayerValues);
+            return Text('hi'); //Todo return loading thing
+          } else {
+            var data = snapshot.data.documents;
+            for (var smallData in data) {
+              if (smallData.documentID == 'prayers')
+                for (int i = 0; i < prayerValues.length; i++) {
+                  prayerValues[i] = smallData.data['$i'];
+                }
+              else if (smallData.documentID == 'werds')
+                for (int i = 0; i < werdValues.length; i++) {
+                  werdValues[i] = smallData.data['$i is'];
+                }
+              else
+                dayPoints = smallData.data[0];
             }
-          },
-        ),
+            endTheDay();
+            return ListView(
+              children: <Widget>[
+                prayerListTile(),
+                myListTile('ورد القرآن', 0),
+                myListTile('قيام الليل', 1),
+                myListTile('أذكار الصباح', 2),
+                myListTile('أذكار المساء', 3),
+                ListTile(
+                  title: Text(
+                    'Total   $dayPoints',
+                    style: TextStyle(color: Colors.indigo, fontSize: 22),
+                  ),
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }

@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Werd',
       theme: ThemeData(),
-      initialRoute: '/Week',
+      initialRoute: '/Day',
       routes: {'/Day': (context) => Day(), '/Week': (context) => WeekReport()},
     );
   }
