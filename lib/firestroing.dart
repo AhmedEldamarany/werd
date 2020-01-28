@@ -7,18 +7,22 @@ class FireStoring {
   static Firestore _myFireStore = Firestore.instance;
   String _pathToDay;
   String _pathToWeek;
-  String dbWeek = 'Week';
-  String dbdayTotal = 'dayTotal';
-  String dbPrayers = 'prayers';
-  String dbWerds = 'werds';
+  String _dbWeek = 'Week';
+  String _dbdayTotal = 'dayTotal';
+  String _dbPrayers = 'prayers';
+  String _dbWerds = 'werds';
+
   int today;
   static Auth myAuth = Auth();
   DateTime myDate = DateTime.now();
+  String UserId = 'UserId2';
+  String _pathToWeeklyAvg;
 
   FireStoring() {
     today = myDate.weekday;
-    _pathToDay = '/UserId/Week/$today';
-    _pathToWeek = '/UserId';
+    _pathToDay = 'Users/$UserId/data/$_dbWeek/3';
+    _pathToWeek = '/Users/$UserId/data';
+    _pathToWeeklyAvg = 'Users';
   }
 
 //endregion
@@ -31,7 +35,7 @@ class FireStoring {
       int i = prayers[j];
       _myFireStore
           .collection(_pathToDay)
-          .document(dbPrayers)
+          .document(_dbPrayers)
           .setData({'$j': i}, merge: true);
     }
   }
@@ -41,7 +45,7 @@ class FireStoring {
       bool i = prayers[j];
       _myFireStore
           .collection(_pathToDay)
-          .document(dbPrayers)
+          .document(_dbWerds)
           .setData({'$j is': i}, merge: true);
     }
   }
@@ -49,15 +53,15 @@ class FireStoring {
   void setDayTotale(int dayTotal) async {
     await _myFireStore
         .collection(_pathToDay)
-        .document(dbdayTotal)
-        .setData({dbdayTotal: dayTotal});
+        .document(_dbdayTotal)
+        .setData({_dbdayTotal: dayTotal});
   }
 
   void setWeekAverage() async {
     double myAvg = await _calculateWeekAvg();
     _myFireStore
-        .collection(_pathToWeek)
-        .document(dbWeek)
+        .collection(_pathToWeeklyAvg)
+        .document(UserId)
         .setData({'avg': myAvg});
   }
 
@@ -69,18 +73,18 @@ class FireStoring {
       try {
         DocumentSnapshot snapshot = await _myFireStore
             .collection(_pathToWeek)
-            .document('Week')
+            .document(_dbWeek)
             .collection('$i')
-            .document(dbdayTotal)
+            .document(_dbdayTotal)
             .get();
-        int shit = snapshot.data[dbdayTotal];
-        print('$shit in $i n is $n');
+        int shit = snapshot.data[_dbdayTotal];
+//        print('$shit in $i n is $n');
         if (shit != 0) {
           n++;
           sum += shit;
         }
       } catch (e) {
-        print('errors lol in $i n is $n ');
+//        print('errors lol in $i n is $n ');
       }
     }
     return sum / n;
@@ -91,7 +95,7 @@ class FireStoring {
   }
 
   Stream<QuerySnapshot> weekStream() {
-    return _myFireStore.collection(_pathToWeek).snapshots();
+    return _myFireStore.collection(_pathToWeeklyAvg).snapshots();
   }
 //endregion
 }
