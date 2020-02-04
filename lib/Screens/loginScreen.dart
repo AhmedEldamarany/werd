@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:werd/auth.dart';
 import 'package:werd/constants.dart';
 
@@ -33,10 +34,16 @@ class _LoginScreenState extends State<LoginScreen> {
       bool result;
       if (_formType == FormType.signIn) {
         result = await Auth.signMeIn(email, password);
-        if (result != null) {
-          Navigator.pushNamed(context, '/friends');
-        } else
+        if (result) {
+          saveLocal(email, password);
+          String uId = await Auth.getCurrentUser();
+          if (uId != null) Navigator.pushNamed(context, '/Day');
+        } else {
+          setState(() {
+            spin = false;
+          });
           print('Can\'t log In');
+        }
       } else {
         if (password == confirmedPassword) {
           result = await Auth.signMeUp(
@@ -44,9 +51,14 @@ class _LoginScreenState extends State<LoginScreen> {
             password: password,
           );
           if (result) {
-            Navigator.pushNamed(context, '/friends');
-          } else
+            saveLocal(email, password);
+            Navigator.pushNamed(context, '/Day');
+          } else {
+            setState(() {
+              spin = false;
+            });
             print('Can\'t log up');
+          }
         }
         setState(() {
           spin = false;
@@ -189,5 +201,11 @@ class _LoginScreenState extends State<LoginScreen> {
         )
       ],
     );
+  }
+
+  Future<void> saveLocal(String mail, String pswd) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', mail);
+    prefs.setString('pswd', pswd);
   }
 }

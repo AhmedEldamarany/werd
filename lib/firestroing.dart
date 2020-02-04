@@ -8,26 +8,29 @@ class FireStoring {
   String _pathToDay;
   String _pathToWeek;
   String _dbWeek = 'Week';
-  String _dbdayTotal = 'dayTotal';
+  String _dbDayTotal = 'dayTotal';
   String _dbPrayers = 'prayers';
   String _dbWerds = 'werds';
 
   int today;
   static Auth myAuth = Auth();
   DateTime myDate = DateTime.now();
-  String UserId = 'UserId2';
+  String userId = 'UserId2';
   String _pathToWeeklyAvg;
 
   FireStoring() {
     today = myDate.weekday;
-    _pathToDay = 'Users/$UserId/data/$_dbWeek/3';
-    _pathToWeek = '/Users/$UserId/data';
+    _pathToDay = 'Users/$userId/data/$_dbWeek/$today';
+    _pathToWeek = '/Users/$userId/data';
     _pathToWeeklyAvg = 'Users';
   }
-
 //endregion
 
 //region  Methods
+  int getToday() {
+    return today;
+  }
+
 //todo implement the Auth object
 //shouldn't call send unless getCurrentUser is called in
 // auth otherwise it will crash
@@ -54,15 +57,15 @@ class FireStoring {
   void setDayTotale(int dayTotal) async {
     await _myFireStore
         .collection(_pathToDay)
-        .document(_dbdayTotal)
-        .setData({_dbdayTotal: dayTotal});
+        .document(_dbDayTotal)
+        .setData({_dbDayTotal: dayTotal});
   }
 
   void setWeekAverage() async {
     double myAvg = await _calculateWeekAvg();
     _myFireStore
         .collection(_pathToWeeklyAvg)
-        .document(UserId)
+        .document(userId)
         .setData({'avg': myAvg});
   }
 
@@ -76,9 +79,9 @@ class FireStoring {
             .collection(_pathToWeek)
             .document(_dbWeek)
             .collection('$i')
-            .document(_dbdayTotal)
+            .document(_dbDayTotal)
             .get();
-        int shit = snapshot.data[_dbdayTotal];
+        int shit = snapshot.data[_dbDayTotal];
 //        print('$shit in $i n is $n');
         if (shit != 0) {
           n++;

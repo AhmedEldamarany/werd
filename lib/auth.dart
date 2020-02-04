@@ -7,7 +7,8 @@ class Auth {
   static AuthResult result;
   static FirebaseUser _user;
 
-//TODO result is always NOT NULL which makes it useless [somehow] user result.user instead
+//TODO result is always NOT NULL which makes it useless [somehow] user
+// result.user instead
 
   static Future<bool> signMeUp({String email, String password}) async {
     try {
@@ -26,12 +27,12 @@ class Auth {
           email: email, password: password);
       return result != null;
     } catch (e, s) {
-      print('auth says ::: $s');
+      print('auth says ::: $e');
       return false;
     }
   }
 
-  getCurrentUser() async {
+  static Future<String> getCurrentUser() async {
     try {
       _user = await _myAuth.currentUser();
       if (_user != null) {

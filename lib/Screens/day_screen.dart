@@ -17,7 +17,6 @@ class _DayState extends State<Day> {
   FireStoring firestoring = new FireStoring();
   bool showPrayers = false;
   int dayPoints = 0;
-
   void endTheDay() {
     dayPoints = 0;
     for (int i in prayerValues)
@@ -41,7 +40,11 @@ class _DayState extends State<Day> {
         ),
       ),
       body: PageView(
-        children: <Widget>[pageOne(), WeekReport()],
+        reverse: true,
+        children: <Widget>[
+          pageOne(),
+          WeekReport(),
+        ],
       ),
     );
   }
@@ -52,7 +55,7 @@ class _DayState extends State<Day> {
       //margin: EdgeInsets.only(top: 80),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(120)),
+        borderRadius: BorderRadius.only(topRight: Radius.circular(120)),
       ),
       child: StreamBuilder<QuerySnapshot>(
         stream: firestoring.dayStream(),

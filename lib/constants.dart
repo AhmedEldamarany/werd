@@ -9,8 +9,16 @@ const List<Color> KmyColors = [
   Color(0xFFd7dcde),
 ];
 final myColor = Color(0xff092257);
+const List<String> weekDays = [
+  'الإثنين',
+  'الثلاثاء',
+  'الأربعاء',
+  'الخميس',
+  'الجمعة',
+  'السبت',
+  'الأحد'
+];
 
-//Todo needs a controller
 class CustomeTextField extends StatelessWidget {
   final String labelText;
   final String hintText;

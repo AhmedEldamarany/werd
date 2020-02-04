@@ -22,7 +22,7 @@ class RootPageState extends State<RootPage> {
 
   initState() {
     super.initState();
-    auth.getCurrentUser().then((userId) {
+    Auth.getCurrentUser().then((userId) {
       setState(() {
         _authStatus = userId == null ? AuthStatus.out : AuthStatus.In;
       });

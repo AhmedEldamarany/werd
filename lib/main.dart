@@ -1,10 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:werd/Screens/weekly_report.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:werd/Screens/loginScreen.dart';
 
 import 'Screens/day_screen.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var email = prefs.getString('email');
+  var pswd = prefs.get('pswd');
+  if (email != null && pswd != null) loggedin = true;
+  runApp(MyApp());
+}
+
+bool loggedin = false;
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -13,8 +23,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Werd',
       theme: ThemeData(),
-      initialRoute: '/Day',
-      routes: {'/Day': (context) => Day(), '/Week': (context) => WeekReport()},
+      initialRoute: loggedin ? '/Day' : '/login',
+      routes: {
+        '/Day': (context) => Day(),
+        '/login': (context) => LoginScreen()
+      },
     );
   }
 }
