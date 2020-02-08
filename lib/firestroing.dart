@@ -15,10 +15,11 @@ class FireStoring {
   int today;
   static Auth myAuth = Auth();
   DateTime myDate = DateTime.now();
-  String userId = 'UserId2';
+  String userId;
   String _pathToWeeklyAvg;
 
-  FireStoring() {
+  FireStoring(String userID) {
+    userId = userID;
     today = myDate.weekday;
     _pathToDay = 'Users/$userId/data/$_dbWeek/$today';
     _pathToWeek = '/Users/$userId/data';
@@ -32,8 +33,7 @@ class FireStoring {
   }
 
 //todo implement the Auth object
-//shouldn't call send unless getCurrentUser is called in
-// auth otherwise it will crash
+  String myUId() {}
   updatePrayers(List<int> prayers) {
     for (int j = 0; j < prayers.length; j++) {
       int i = prayers[j];
@@ -91,7 +91,8 @@ class FireStoring {
 //        print('errors lol in $i n is $n ');
       }
     }
-    return sum / n;
+
+    return num.parse((sum / n).toStringAsFixed(2));
   }
 
   Stream<QuerySnapshot> dayStream() {

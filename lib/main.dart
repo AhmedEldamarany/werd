@@ -4,16 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:werd/Screens/loginScreen.dart';
 
 import 'Screens/day_screen.dart';
+import 'auth.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var email = prefs.getString('email');
   var pswd = prefs.get('pswd');
-  if (email != null && pswd != null) loggedin = true;
+  if (email != null && pswd != null) {
+    loggedin = true;
+    userId = await Auth.getCurrentUser();
+  }
   runApp(MyApp());
 }
 
+String userId;
 bool loggedin = false;
 
 class MyApp extends StatelessWidget {
@@ -25,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(),
       initialRoute: loggedin ? '/Day' : '/login',
       routes: {
-        '/Day': (context) => Day(),
+        '/Day': (context) => Day(userId),
         '/login': (context) => LoginScreen()
       },
     );

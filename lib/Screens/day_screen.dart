@@ -1,22 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:werd/Screens/weekly_report.dart';
 import 'package:werd/firestroing.dart';
 
 import '../constants.dart';
 
 //todo do I need stateful ?
 class Day extends StatefulWidget {
+  static String userId;
+
+  Day(String uID) {
+    userId = uID;
+  }
+
   @override
   _DayState createState() => _DayState();
 }
 
+FireStoring firestoring = new FireStoring(Day.userId);
+
 class _DayState extends State<Day> {
   List<bool> werdValues = [false, false, false, false];
   List<int> prayerValues = [0, 0, 0, 0, 0];
-  FireStoring firestoring = new FireStoring();
   bool showPrayers = false;
   int dayPoints = 0;
+
+  //
+
   void endTheDay() {
     dayPoints = 0;
     for (int i in prayerValues)
@@ -35,8 +44,8 @@ class _DayState extends State<Day> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Day 1',
-          style: TextStyle(color: Colors.white),
+          weekDays[firestoring.getToday() - 1],
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: PageView(
@@ -60,11 +69,19 @@ class _DayState extends State<Day> {
       child: StreamBuilder<QuerySnapshot>(
         stream: firestoring.dayStream(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            firestoring.updateWerds(werdValues);
+          print('${snapshot.hasData} is weired');
+
+          if (!snapshot.hasData &&
+              snapshot.connectionState != ConnectionState.active) {
+            print('nothing');
+            return Center(child: CircularProgressIndicator());
+          } else if (!snapshot.hasData && !snapshot.hasError) {
+            print('filling');
             firestoring.updatePrayers(prayerValues);
-            return Text('hi'); //Todo return loading thing
+            firestoring.updateWerds(werdValues);
+            return Center(child: CircularProgressIndicator());
           } else {
+            print('has data');
             var data = snapshot.data.documents;
             for (var smallData in data) {
               if (smallData.documentID == 'prayers')
@@ -181,6 +198,80 @@ class _DayState extends State<Day> {
         ],
         mainAxisSize: MainAxisSize.min,
       ),
+    );
+  }
+}
+
+class WeekReport extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(120)),
+      ),
+      padding: EdgeInsets.only(left: 30, top: 30),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: firestoring.weekStream(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Text('wait');
+          //todo something to load
+          else {
+            double myAvg;
+            List<MessageBubble> allPeople = List<MessageBubble>();
+            var data = snapshot.data.documents;
+            for (var smallData in data) {
+              print(smallData.documentID);
+              myAvg = smallData.data['avg'];
+              if (myAvg > 0)
+                allPeople.add(MessageBubble(
+                  text: '$myAvg',
+                  isCurrentUser: true,
+                ));
+            }
+            firestoring.setWeekAverage();
+
+            return ListView(
+              children: allPeople,
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  MessageBubble({this.text, this.sender, this.isCurrentUser, this.id});
+
+  final MainAxisAlignment myAlignment = MainAxisAlignment.end;
+  final MainAxisAlignment hisAlignment = MainAxisAlignment.start;
+  final id;
+  final String text, sender;
+  final bool isCurrentUser;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: isCurrentUser ? myAlignment : hisAlignment,
+      children: <Widget>[
+        Container(
+//          transform: Matrix4.rotationZ(isCurrentUser ? 0.1 : -0.1),
+          child: Text(
+            text,
+            style: TextStyle(
+                color: isCurrentUser ? KmyColors[0] : KmyColors[5],
+                fontSize: 24),
+          ),
+          margin: EdgeInsets.all(2),
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.elliptical(20, 40)),
+            color: isCurrentUser ? KmyColors[4] : KmyColors[2],
+          ),
+        ),
+      ],
     );
   }
 }
