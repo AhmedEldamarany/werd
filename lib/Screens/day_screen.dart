@@ -19,12 +19,26 @@ class Day extends StatefulWidget {
 FireStoring firestoring = new FireStoring(Day.userId);
 
 class _DayState extends State<Day> {
-  List<bool> werdValues = [false, false, false, false];
-  List<int> prayerValues = [0, 0, 0, 0, 0];
-  bool showPrayers = false;
-  int dayPoints = 0;
+  List<bool> werdValues;
+  List<int> prayerValues;
+  bool showPrayers;
+  int dayPoints;
+  String weekAvg;
+
+  String title;
 
   //
+  @override
+  void initState() {
+    super.initState();
+
+    weekAvg = 'متوسط الأسبوع';
+    title = weekAvg;
+    dayPoints = 0;
+    showPrayers = false;
+    werdValues = [false, false, false, false];
+    prayerValues = [0, 0, 0, 0, 0];
+  }
 
   void endTheDay() {
     dayPoints = 0;
@@ -44,11 +58,19 @@ class _DayState extends State<Day> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          weekDays[firestoring.getToday() - 1],
+          title,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: PageView(
+        onPageChanged: (i) {
+          setState(() {
+            if (i == 1)
+              title = weekAvg;
+            else
+              title = weekDays[firestoring.getToday() - 1];
+          });
+        },
         reverse: true,
         children: <Widget>[
           pageOne(),
@@ -71,16 +93,17 @@ class _DayState extends State<Day> {
         builder: (context, snapshot) {
           print('${snapshot.hasData} is weired');
 
-          if (!snapshot.hasData &&
-              snapshot.connectionState != ConnectionState.active) {
+          if (snapshot.connectionState != ConnectionState.active &&
+              snapshot.connectionState != ConnectionState.waiting) {
             print('nothing');
             return Center(child: CircularProgressIndicator());
-          } else if (!snapshot.hasData && !snapshot.hasError) {
+          } else if (snapshot.connectionState == ConnectionState.active &&
+              !snapshot.hasData) {
             print('filling');
             firestoring.updatePrayers(prayerValues);
             firestoring.updateWerds(werdValues);
             return Center(child: CircularProgressIndicator());
-          } else {
+          } else if (snapshot.hasData) {
             print('has data');
             var data = snapshot.data.documents;
             for (var smallData in data) {
@@ -95,14 +118,16 @@ class _DayState extends State<Day> {
               else
                 dayPoints = smallData.data[0];
             }
+
             endTheDay();
             return ListView(
               children: <Widget>[
                 prayerListTile(),
-                myListTile('ورد القرآن', 0),
-                myListTile('قيام الليل', 1),
-                myListTile('أذكار الصباح', 2),
-                myListTile('أذكار المساء', 3),
+                myListTile('ورد القرآن', 0, 'يِهْدِي لِلَّتِي هِيَ أَقْوَمُ'),
+                myListTile('قيام الليل', 1,
+                    'وَالَّذِينَ يَبِيتُونَ لِرَبِّهِمْ سُجَّدًا وَقِيَامًا'),
+                myListTile('أذكار الصباح', 2, ''),
+                myListTile('أذكار المساء', 3, ''),
                 ListTile(
                   title: Text(
                     'Total   $dayPoints',
@@ -111,13 +136,15 @@ class _DayState extends State<Day> {
                 ),
               ],
             );
-          }
+          } else
+            return Center(child: CircularProgressIndicator());
         },
       ),
     );
   }
 
-  CheckboxListTile myListTile(String title, int hisVal, {fontSize = 22.0}) {
+  CheckboxListTile myListTile(String title, int hisVal, String subTitle,
+      {fontSize = 22.0}) {
     return CheckboxListTile(
       activeColor: Colors.white,
       checkColor: Colors.green,
@@ -130,7 +157,7 @@ class _DayState extends State<Day> {
       },
       value: werdValues[hisVal],
       subtitle: Text(
-        'very Important',
+        subTitle,
         style: TextStyle(color: Colors.indigo, fontSize: 12),
       ),
       title: Text(
@@ -145,11 +172,11 @@ class _DayState extends State<Day> {
       subtitle: showPrayers
           ? Column(
               children: <Widget>[
-                prayerTile(0),
-                prayerTile(1),
-                prayerTile(2),
-                prayerTile(3),
-                prayerTile(4),
+                prayerTile(0, 'الفجر'),
+                prayerTile(1, 'الظهر'),
+                prayerTile(2, 'العصر'),
+                prayerTile(3, 'المغرب'),
+                prayerTile(4, 'العشاء'),
               ],
             )
           : null,
@@ -168,9 +195,9 @@ class _DayState extends State<Day> {
     );
   }
 
-  prayerTile(int thisPrayer) {
+  prayerTile(int thisPrayer, String prayerName) {
     return ListTile(
-      title: Text('Fajr'),
+      title: Text(prayerName),
       trailing: Row(
         children: <Widget>[
           Text('جماعة'),
@@ -222,12 +249,12 @@ class WeekReport extends StatelessWidget {
             List<MessageBubble> allPeople = List<MessageBubble>();
             var data = snapshot.data.documents;
             for (var smallData in data) {
-              print(smallData.documentID);
+              print(smallData.documentID == Day.userId);
               myAvg = smallData.data['avg'];
               if (myAvg > 0)
                 allPeople.add(MessageBubble(
                   text: '$myAvg',
-                  isCurrentUser: true,
+                  isCurrentUser: smallData.documentID == Day.userId,
                 ));
             }
             firestoring.setWeekAverage();
@@ -245,8 +272,8 @@ class WeekReport extends StatelessWidget {
 class MessageBubble extends StatelessWidget {
   MessageBubble({this.text, this.sender, this.isCurrentUser, this.id});
 
-  final MainAxisAlignment myAlignment = MainAxisAlignment.end;
-  final MainAxisAlignment hisAlignment = MainAxisAlignment.start;
+  final MainAxisAlignment myAlignment = MainAxisAlignment.start;
+  final MainAxisAlignment hisAlignment = MainAxisAlignment.end;
   final id;
   final String text, sender;
   final bool isCurrentUser;
@@ -261,14 +288,14 @@ class MessageBubble extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-                color: isCurrentUser ? KmyColors[0] : KmyColors[5],
+                color: isCurrentUser ? KmyColors[0] : KmyColors[0],
                 fontSize: 24),
           ),
           margin: EdgeInsets.all(2),
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.elliptical(20, 40)),
-            color: isCurrentUser ? KmyColors[4] : KmyColors[2],
+            color: isCurrentUser ? KmyColors[4] : Colors.grey,
           ),
         ),
       ],
