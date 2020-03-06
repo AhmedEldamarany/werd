@@ -105,5 +105,6 @@ class FireStoring {
         .orderBy('avg', descending: true)
         .snapshots();
   }
+
 //endregion
 }

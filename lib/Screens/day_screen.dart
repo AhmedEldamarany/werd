@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:werd/firestroing.dart';
 
 import '../constants.dart';
 
-//todo do I need stateful ?
 class Day extends StatefulWidget {
   static String userId;
 
@@ -19,6 +19,7 @@ class Day extends StatefulWidget {
 FireStoring firestoring = new FireStoring(Day.userId);
 
 class _DayState extends State<Day> {
+  BannerAd myBanner;
   List<bool> werdValues;
   List<int> prayerValues;
   bool showPrayers;
@@ -27,17 +28,33 @@ class _DayState extends State<Day> {
 
   String title;
 
+  MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+    keywords: <String>['all', 'beautiful apps', 'game', 'todo', 'calaender'],
+    nonPersonalizedAds: true,
+    designedForFamilies: true,
+    testDevices: <String>[],
+  );
+
   //
   @override
   void initState() {
     super.initState();
 
     weekAvg = 'متوسط الأسبوع';
-    title = weekAvg;
+    title = weekDays[firestoring.getToday() - 1];
     dayPoints = 0;
     showPrayers = false;
     werdValues = [false, false, false, false];
     prayerValues = [0, 0, 0, 0, 0];
+    FirebaseAdMob.instance.initialize(appId: kAppId);
+    myBanner = buildMyBannerAd()
+      ..load();
+  }
+
+  @override
+  void dispose() {
+    myBanner?.dispose();
+    super.dispose();
   }
 
   void endTheDay() {
@@ -49,8 +66,21 @@ class _DayState extends State<Day> {
     firestoring.setDayTotale(dayPoints);
   }
 
+  BannerAd buildMyBannerAd() {
+    return BannerAd(
+        adUnitId: kAppUnitId,
+        size: AdSize.fullBanner,
+        targetingInfo: targetingInfo,
+        listener: (MobileAdEvent event) {
+          print(event);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
+    myBanner
+      ..load()
+      ..show();
     return Scaffold(
       backgroundColor: myColor,
       appBar: AppBar(
@@ -171,14 +201,14 @@ class _DayState extends State<Day> {
     return ListTile(
       subtitle: showPrayers
           ? Column(
-              children: <Widget>[
-                prayerTile(0, 'الفجر'),
-                prayerTile(1, 'الظهر'),
-                prayerTile(2, 'العصر'),
-                prayerTile(3, 'المغرب'),
-                prayerTile(4, 'العشاء'),
-              ],
-            )
+        children: <Widget>[
+          prayerTile(0, 'الفجر'),
+          prayerTile(1, 'الظهر'),
+          prayerTile(2, 'العصر'),
+          prayerTile(3, 'المغرب'),
+          prayerTile(4, 'العشاء'),
+        ],
+      )
           : null,
       onTap: () {
         setState(() {

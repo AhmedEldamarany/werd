@@ -8,6 +8,8 @@ const List<Color> KmyColors = [
   Color(0xFFaacfe2),
   Color(0xFFd7dcde),
 ];
+String kAppId = 'ca-app-pub-3436134363457137~2584427744';
+String kAppUnitId = 'ca-app-pub-3436134363457137/3486445878';
 final myColor = Color(0xff092257);
 const List<String> weekDays = [
   'الإثنين',
