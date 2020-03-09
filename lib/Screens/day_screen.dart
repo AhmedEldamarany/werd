@@ -24,15 +24,13 @@ class _DayState extends State<Day> {
   List<int> prayerValues;
   bool showPrayers;
   int dayPoints;
-  String weekAvg;
 
   String title;
 
   MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
     keywords: <String>['all', 'beautiful apps', 'game', 'todo', 'calaender'],
     nonPersonalizedAds: true,
-    designedForFamilies: true,
-    testDevices: <String>[],
+    childDirected: true,
   );
 
   //
@@ -40,7 +38,6 @@ class _DayState extends State<Day> {
   void initState() {
     super.initState();
 
-    weekAvg = 'متوسط الأسبوع';
     title = weekDays[firestoring.getToday() - 1];
     dayPoints = 0;
     showPrayers = false;
@@ -68,19 +65,17 @@ class _DayState extends State<Day> {
 
   BannerAd buildMyBannerAd() {
     return BannerAd(
-        adUnitId: kAppUnitId,
+        adUnitId: kAddUnitId,
         size: AdSize.fullBanner,
         targetingInfo: targetingInfo,
         listener: (MobileAdEvent event) {
-          print(event);
+          print(event.toString());
         });
   }
 
   @override
   Widget build(BuildContext context) {
-    myBanner
-      ..load()
-      ..show();
+    myBanner..show();
     return Scaffold(
       backgroundColor: myColor,
       appBar: AppBar(
@@ -96,7 +91,7 @@ class _DayState extends State<Day> {
         onPageChanged: (i) {
           setState(() {
             if (i == 1)
-              title = weekAvg;
+              title = ' متوسط الأسبوع لجميع المستخدمين';
             else
               title = weekDays[firestoring.getToday() - 1];
           });
@@ -126,12 +121,14 @@ class _DayState extends State<Day> {
           if (snapshot.connectionState != ConnectionState.active &&
               snapshot.connectionState != ConnectionState.waiting) {
             print('nothing');
+
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.connectionState == ConnectionState.active &&
               !snapshot.hasData) {
             print('filling');
             firestoring.updatePrayers(prayerValues);
             firestoring.updateWerds(werdValues);
+
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
             print('has data');
@@ -148,7 +145,6 @@ class _DayState extends State<Day> {
               else
                 dayPoints = smallData.data[0];
             }
-
             endTheDay();
             return ListView(
               children: <Widget>[
@@ -156,8 +152,10 @@ class _DayState extends State<Day> {
                 myListTile('ورد القرآن', 0, 'يِهْدِي لِلَّتِي هِيَ أَقْوَمُ'),
                 myListTile('قيام الليل', 1,
                     'وَالَّذِينَ يَبِيتُونَ لِرَبِّهِمْ سُجَّدًا وَقِيَامًا'),
-                myListTile('أذكار الصباح', 2, ''),
-                myListTile('أذكار المساء', 3, ''),
+                myListTile('أذكار الصباح', 2,
+                    ' أَلاَ بِذِكْرِ اللّهِ تَطْمَئِنُّ الْقُلُوبُ'),
+                myListTile('أذكار المساء', 3,
+                    ' أَلاَ بِذِكْرِ اللّهِ تَطْمَئِنُّ الْقُلُوبُ'),
                 ListTile(
                   title: Text(
                     'Total   $dayPoints',
@@ -166,8 +164,10 @@ class _DayState extends State<Day> {
                 ),
               ],
             );
-          } else
+          } else {
+            print('else the else');
             return Center(child: CircularProgressIndicator());
+          }
         },
       ),
     );
@@ -188,7 +188,7 @@ class _DayState extends State<Day> {
       value: werdValues[hisVal],
       subtitle: Text(
         subTitle,
-        style: TextStyle(color: Colors.indigo, fontSize: 12),
+        style: TextStyle(color: Colors.black, fontSize: 15),
       ),
       title: Text(
         title,
@@ -209,7 +209,10 @@ class _DayState extends State<Day> {
           prayerTile(4, 'العشاء'),
         ],
       )
-          : null,
+          : Text(
+        ' إِنَّ الصَّلاةَ تَنْهَى عَنِ الْفَحْشَاءِ وَالْمُنْكَرِ',
+        style: TextStyle(color: Colors.black, fontSize: 15),
+      ),
       onTap: () {
         setState(() {
           if (showPrayers)
@@ -325,7 +328,7 @@ class MessageBubble extends StatelessWidget {
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.elliptical(20, 40)),
-            color: isCurrentUser ? KmyColors[4] : Colors.grey,
+            color: isCurrentUser ? KmyColors[4] : Colors.blueGrey,
           ),
         ),
       ],
